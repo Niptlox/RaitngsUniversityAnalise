@@ -2,14 +2,17 @@ from selenium.webdriver.common.by import By
 
 from webdriver import *
 
-
 FAST_MODE = 1
 TABLE_MODE = 2
 TR_MODE = 3
 
-MODE = TR_MODE
+MODE = TABLE_MODE
 driver = login_driver("https://ratings.utmn.ru/")
 path = "utmn/"
+
+
+def find_in_html(html, element):
+    pass
 
 
 def load_section(sect):
@@ -40,14 +43,18 @@ def load_section(sect):
     f.write(headers)
     cnt_columns = len(headers)
     if MODE == FAST_MODE:
-        text = table.text.replace("\nещё\n", "").replace("На общих основаниях", "На_общих_основаниях").replace("Бюджетная основа", "Бюджетная_основа").replace(" ", ";")
+        text = table.text.replace("\nещё\n", "").replace("На общих основаниях", "На_общих_основаниях").replace(
+            "Бюджетная основа", "Бюджетная_основа").replace(" ", ";")
         # print(text.count("\n"))
-        text = text[text.find("\n")+1:]
+        text = text[text.find("\n") + 1:]
         print(text)
         f.write(text)
     elif MODE == TR_MODE:
-        cells = driver.find_elements(By.TAG_NAME, "td")
-        rows = [";".join(cells[i:i+cnt_columns])+";" for i in range(0, len(cells), cnt_columns)]
+        print("Run td")
+        cells = [e.text for e in driver.find_elements(By.TAG_NAME, "td")]
+        print("Fin td")
+        print(cells)
+        rows = [";".join(cells[i:i + cnt_columns]) + ";" for i in range(0, len(cells), cnt_columns)]
         print(rows)
         f.writelines(rows)
     elif MODE == TABLE_MODE:
@@ -64,7 +71,7 @@ def load_section(sect):
     f.close()
 
 
-num_sect = 1
+num_sect = 0
 while True:
     el1 = driver.find_element(By.XPATH, "/html/body/div/div/div[2]/main/div/div/section[2]/div[1]/div[2]/div[2]/label")
     print(el1)
@@ -78,4 +85,3 @@ while True:
     if num_sect == len(sections) - 1:
         break
     num_sect += 1
-    break
